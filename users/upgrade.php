@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/functions.php';
+$pdo = db();
 $u = require_login();
 // Determine user's current tier from the unified tiers table
 $st = $pdo->prepare('SELECT * FROM tiers WHERE id = ? LIMIT 1');
@@ -223,11 +225,11 @@ $upgradeTiers = array_values(array_filter($allOpts, function($o) { return $o['di
     <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+                <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-sm">
                     <?php echo $opt['display_rating']; ?>
                 </div>
-                <div>
-                    <h3 class="font-bold text-sm text-gray-800"><?php echo $opt['display_name']; ?></h3>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-sm text-gray-800 truncate"><?php echo $opt['display_name']; ?></h3>
                     <p class="text-xs text-gray-500"><?php echo (int)$opt['daily_hash_allowance']; ?> hashes | <?php echo (int)$opt['daily_spin_allowance']; ?> spins</p>
                 </div>
             </div>
@@ -262,7 +264,7 @@ $upgradeTiers = array_values(array_filter($allOpts, function($o) { return $o['di
 <?php if ($refCount >= $opt['referral_requirement']): ?>
         <div class="block w-full bg-green-100 text-green-700 py-2.5 rounded-xl font-semibold text-sm text-center">Eligible</div>
 <?php else: ?>
-        <a href="/users/upgrade_action.php?tier=<?php echo $opt['id']; ?>&tier_name=<?php echo urlencode($opt['display_name']); ?>" class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-xl font-semibold text-sm text-center transition">Upgrade Now</a>
+        <a href="/users/deposit.php?tier=<?php echo $opt['id']; ?>&tier_name=<?php echo urlencode($opt['display_name']); ?>" class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-xl font-semibold text-sm text-center transition">Upgrade Now</a>
 <?php endif; ?>
 </div>
 </div>
