@@ -1,0 +1,112 @@
+Uri: https://cdn.tailwindcss.com/3.4.17
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\3.4.17
+Content Type: text/javascript
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\css\all.min.css
+Content Type: text/css
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-brands-400.ttf
+Content Type: application/octet-stream
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-brands-400.woff2
+Content Type: application/octet-stream
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-regular-400.ttf
+Content Type: application/octet-stream
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-regular-400.woff2
+Content Type: application/octet-stream
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-solid-900.ttf
+Content Type: application/octet-stream
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-solid-900.woff2
+Content Type: application/octet-stream
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-v4compatibility.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-v4compatibility.ttf
+Content Type: application/octet-stream
+
+Uri: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-v4compatibility.woff2
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\ajax\libs\font-awesome\6.4.0\webfonts\fa-v4compatibility.woff2
+Content Type: application/octet-stream
+
+Uri: https://drillifyx.org/
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\index.htm
+Content Type: text/html
+
+Uri: https://drillifyx.org/forgot-password.php
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\forgot-password.php.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/images/usd-coin-usdc-logo.png
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\images\usd-coin-usdc-logo.png
+Content Type: image/png
+
+Uri: https://drillifyx.org/index.php
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\index.php.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/login.php
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\login.php.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/register.php
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\register.php.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/top-earners.php
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\top-earners.php.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/top-earners.php?page=1
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\top-earners.php-2.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/top-earners.php?page=2
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\top-earners.php-1.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/top-earners.php?page=3
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\top-earners.php-3.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/top-earners.php?page=4
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\top-earners.php-4.html
+Content Type: text/html
+
+Uri: https://drillifyx.org/top-earners.php?page=5
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\top-earners.php-5.html
+Content Type: text/html
+
+Uri: https://fonts.googleapis.com/css2?family=Signika+Negative:wght@300;400;500;600;700&display=swap
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\css2
+Content Type: text/css
+
+Uri: https://fonts.gstatic.com/s/signikanegative/v26/E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAp5TL3s.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\s\signikanegative\v26\E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAp5TL3s.ttf
+Content Type: font/ttf
+
+Uri: https://fonts.gstatic.com/s/signikanegative/v26/E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RApATL3s.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\s\signikanegative\v26\E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RApATL3s.ttf
+Content Type: font/ttf
+
+Uri: https://fonts.gstatic.com/s/signikanegative/v26/E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAqnS73s.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\s\signikanegative\v26\E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAqnS73s.ttf
+Content Type: font/ttf
+
+Uri: https://fonts.gstatic.com/s/signikanegative/v26/E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAqVS73s.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\s\signikanegative\v26\E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAqVS73s.ttf
+Content Type: font/ttf
+
+Uri: https://fonts.gstatic.com/s/signikanegative/v26/E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAr5S73s.ttf
+File Name: C:\Users\LENOVO\Documents\drillifyx.org\s\signikanegative\v26\E21x_cfngu7HiRpPX3ZpNE4kY5zKSPmJXkF0VDD2RAr5S73s.ttf
+Content Type: font/ttf
+

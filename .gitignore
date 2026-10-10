@@ -1,0 +1,7 @@
+# Production uploads stay untracked, but keep dir placeholders.
+/uploads/proofs/*
+!/uploads/proofs/.htaccess
+/uploads/branding/*
+!/uploads/branding/.htaccess
+storage_reset_links.log
+/config

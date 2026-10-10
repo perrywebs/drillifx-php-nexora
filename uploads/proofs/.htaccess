@@ -1,0 +1,8 @@
+# Payment proofs are served only through /admin/proof.php (signed-in admins).
+# Direct browser access to these files is blocked on Apache.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>

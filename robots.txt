@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /ajax/
+Disallow: /users/
+Disallow: /includes/
+Disallow: /config/
+Disallow: /database/
+Disallow: /uploads/

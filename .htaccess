@@ -1,0 +1,67 @@
+# Drillifx Apache configuration (cPanel shared hosting, Apache 2.4 + PHP 8.1)
+# Install: place this project at the domain document root (public_html) or a
+# subdirectory (public_html/subdir). No mod_rewrite rules are required: every
+# page is a direct .php file and links are generated base-path aware.
+#
+# NOTE on subdirectory installs: ErrorDocument below assumes the document root.
+# If you install in a subdirectory, either keep the app at the document root
+# (recommended) or add in the SUBDIRECTORY an .htaccess with:
+#   ErrorDocument 404 /subdir/404.php
+
+# No directory listings
+Options -Indexes
+
+# Always prefer the live app over stale offline-mirror files (index.htm, *.html
+# webcopy leftovers must be deleted before upload; this is a second layer).
+DirectoryIndex index.php index.html index.htm
+
+# Custom "page not found" page (document-root installs)
+ErrorDocument 404 /404.php
+
+# Legacy fix: offline-mirror URLs like /login.php.html (leftover links from a
+# static site copy, possibly indexed by search engines) permanently redirect
+# to the canonical PHP page. GET/HEAD only: no form in this app ever posts to
+# a .php.html URL, so other methods correctly fall through to the 404 above.
+# The relative substitution keeps subdirectory installs working, and Apache
+# preserves the original query string automatically. Cannot loop: the target
+# ends in .php and no longer matches this pattern.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+    RewriteRule ^(.+\.php)\.html$ $1 [R=301,L]
+</IfModule>
+
+# Block direct access to code, settings and data directories
+RedirectMatch 403 ^/(includes|config|database)(/.*)?$
+
+# Never serve sensitive files: SQL dumps, logs, backups, archives,
+# leftover .html mirrors (deleted from this project) and webcopy metadata.
+# Kept as defense-in-depth so a stray file is never served as a duplicate page.
+<FilesMatch "(\.log|\.sql|\.zip|\.htm[l]?|\.htaccess|\.htpasswd|webcopy-origin\.txt|3\.4\.17|css2)$">
+    Require all denied
+</FilesMatch>
+
+# Keep proof uploads private: served only via /admin/proof.php to signed-in
+# admins (see uploads/proofs/.htaccess). Public branding uploads stay allowed.
+# NOTE: intentionally no <DirectoryMatch>/php_flag directives here: php_flag
+# is unsupported under PHP-FPM (standard on cPanel) and would cause HTTP 500.
+# Script-execution protection for uploads is handled by the .htaccess inside
+# uploads/proofs/ plus strict upload validation in PHP.
+
+# Security headers (best effort: ignored if the host disallows them)
+<IfModule mod_headers.c>
+    Header unset X-Powered-By
+    Header set X-Content-Type-Options "nosniff"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Cache static assets briefly (best effort)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 7 days"
+    ExpiresByType image/jpeg "access plus 7 days"
+    ExpiresByType image/webp "access plus 7 days"
+    ExpiresByType image/svg+xml "access plus 7 days"
+    ExpiresByType text/css "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+</IfModule>
