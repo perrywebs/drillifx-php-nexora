@@ -9,19 +9,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     else {
         $prevVerify = setting('email_verification', '0');
         $fields = [
-            'site_name','site_title','site_description','support_email','contact_email','timezone','currency',
-            'registration_enabled','referral_enabled','email_verification','mail_enabled',
-            'min_deposit','min_withdraw','fx_USD','fx_NGN','fx_GHS','referral_reward',
-            'spin_enabled','hash_enabled','maintenance_mode',
+            'site_name',
+            'site_title',
+            'site_description',
+            'support_email',
+            'contact_email',
+            'timezone',
+            'currency',
+            'registration_enabled',
+            'referral_enabled',
+            'email_verification',
+            'mail_enabled',
+            'min_deposit',
+            'min_withdraw',
+            'fx_USD',
+            'fx_NGN',
+            'fx_GHS',
+            'referral_reward',
+            'spin_enabled',
+            'hash_enabled',
+            'maintenance_mode',
         ];
         $changed = [];
         foreach ($fields as $f) {
             $v = $_POST[$f] ?? null;
-            if (in_array($f, ['registration_enabled','referral_enabled','email_verification','mail_enabled','spin_enabled','hash_enabled','maintenance_mode'], true)) $v = isset($_POST[$f]) ? '1' : '0';
+            if (in_array($f, ['registration_enabled', 'referral_enabled', 'email_verification', 'mail_enabled', 'spin_enabled', 'hash_enabled', 'maintenance_mode'], true)) $v = isset($_POST[$f]) ? '1' : '0';
             $v = is_string($v) ? trim($v) : $v;
-            if ($f === 'support_email' || $f === 'contact_email') { if ($v !== '' && !is_valid_email($v)) { admin_flash('error', "Invalid email for $f."); redirect('/admin/settings.php'); } }
-            if (in_array($f, ['min_deposit','min_withdraw','fx_USD','fx_NGN','fx_GHS','referral_reward'], true)) { if (!is_numeric($v) || (float)$v < 0) { admin_flash('error', "Invalid number for $f."); redirect('/admin/settings.php'); } }
-            if ((string)setting($f, '') !== (string)$v) { set_setting($f, $v); $changed[] = $f; }
+            if ($f === 'support_email' || $f === 'contact_email') {
+                if ($v !== '' && !is_valid_email($v)) {
+                    admin_flash('error', "Invalid email for $f.");
+                    redirect('/admin/settings.php');
+                }
+            }
+            if (in_array($f, ['min_deposit', 'min_withdraw', 'fx_USD', 'fx_NGN', 'fx_GHS', 'referral_reward'], true)) {
+                if (!is_numeric($v) || (float)$v < 0) {
+                    admin_flash('error', "Invalid number for $f.");
+                    redirect('/admin/settings.php');
+                }
+            }
+            if ((string)setting($f, '') !== (string)$v) {
+                set_setting($f, $v);
+                $changed[] = $f;
+            }
         }
         // Enabling email verification must not lock out existing users: backfill them as verified
         if ($prevVerify !== '1' && setting('email_verification', '0') === '1') {
@@ -41,7 +70,7 @@ echo '<h1 class="text-xl font-bold text-slate-800 mb-1">General Settings</h1>';
 echo '<p class="text-sm text-slate-500 mb-4">Changes here take effect immediately across the site.</p>';
 echo '<form method="POST" class="space-y-4">' . csrf_field();
 echo '<div class="bg-white rounded-2xl p-4 shadow-sm"><h2 class="font-bold text-sm mb-3">General</h2><div class="grid md:grid-cols-2 gap-3">';
-foreach ([['site_name','Site name'],['site_title','Site title'],['contact_email','Contact email'],['support_email','Support email'],['timezone','Timezone'],['currency','Currency (code)']] as [$k,$label]) {
+foreach ([['site_name', 'Site name'], ['site_title', 'Site title'], ['contact_email', 'Contact email'], ['support_email', 'Support email'], ['timezone', 'Timezone'], ['currency', 'Currency (code)']] as [$k, $label]) {
     echo '<label class="text-sm text-slate-600">' . $label . '<input name="' . $k . '" value="' . $v($k) . '" class="mt-1 w-full border rounded-xl px-3 py-2 text-sm"></label>';
 }
 echo '<label class="text-sm text-slate-600 md:col-span-2">Site description<textarea name="site_description" class="mt-1 w-full border rounded-xl px-3 py-2 text-sm">' . $v('site_description') . '</textarea></label>';
@@ -54,7 +83,7 @@ echo '<label class="flex items-center gap-2"><input type="checkbox" name="email_
 echo '<label class="flex items-center gap-2"><input type="checkbox" name="mail_enabled" value="1"' . $c('mail_enabled') . '> Email notifications enabled</label>';
 echo '</div></div>';
 echo '<div class="bg-white rounded-2xl p-4 shadow-sm"><h2 class="font-bold text-sm mb-3">Financial</h2><div class="grid md:grid-cols-3 gap-3">';
-foreach ([['min_deposit','Min deposit (USD)'],['min_withdraw','Min withdrawal (USD)'],['referral_reward','Referral reward (USD)'],['fx_USD','USD rate'],['fx_NGN','NGN rate'],['fx_GHS','GHS rate']] as [$k,$label]) {
+foreach ([['min_deposit', 'Min deposit (USD)'], ['min_withdraw', 'Min withdrawal (USD)'], ['referral_reward', 'Referral reward (USD)'], ['fx_USD', 'USD rate'], ['fx_NGN', 'NGN rate'], ['fx_GHS', 'GHS rate']] as [$k, $label]) {
     echo '<label class="text-sm text-slate-600">' . $label . '<input name="' . $k . '" type="number" step="any" min="0" value="' . $v($k, '0') . '" class="mt-1 w-full border rounded-xl px-3 py-2 text-sm"></label>';
 }
 echo '</div></div>';
