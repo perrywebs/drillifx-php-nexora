@@ -69,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
             min-height: 100vh;
         }
 
-        /* Removed gradient-header, now using clean white header */
         .bottom-nav-item.active {
             color: #2563eb;
             background: linear-gradient(180deg, rgba(37, 99, 235, 0.1) 0%, transparent 100%);
@@ -87,42 +86,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
             border-radius: 0 0 4px 4px;
         }
 
-        /* Badge animation */
         @keyframes pulse-badge {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
-        .badge-pulse {
-            animation: pulse-badge 2s ease-in-out infinite;
-        }
+        .badge-pulse { animation: pulse-badge 2s ease-in-out infinite; }
 
-        /* Support icon spinning animation */
         @keyframes spin-slow {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .support-icon-spin {
-            animation: spin-slow 4s linear infinite;
+        .support-icon-spin { animation: spin-slow 4s linear infinite; }
+
+        /* Wheel spin animation is now driven by JS via inline transform.
+           This class only provides the smooth transition. */
+        #wheel.spinning {
+            transition: transform 4.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        #wheel {
+            transition: transform 4.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            transform: rotate(0deg);
+            will-change: transform;
         }
     </style>
 </head>
 
 <body class="min-h-screen">
-    <!-- Redesigned header - clean white with subtle shadow -->
     <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40">
         <div class="px-4 py-3">
             <div class="flex items-center justify-between">
@@ -131,8 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                     <span class="text-lg font-bold text-gray-800"><?php echo e(site_name()); ?></span>
                 </a>
                 <div class="flex items-center gap-2">
-                    <!-- Added support icon -->
-                    <!-- Added animation class to support icon -->
                     <a href="/users/support.php"
                         class="w-9 h-9 bg-gray-50 hover:bg-blue-50 rounded-xl flex items-center justify-center transition group">
                         <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600 support-icon-spin" fill="none"
@@ -141,7 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                                 d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                     </a>
-                    <!-- Notifications with unread badge -->
                     <a href="/users/notifications.php"
                         class="w-9 h-9 bg-gray-50 hover:bg-blue-50 rounded-xl flex items-center justify-center transition relative group">
                         <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600" fill="none" stroke="currentColor"
@@ -158,15 +147,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
 
     <main class="px-4 py-4">
 
-        <!-- Toast Notification Container -->
         <div id="toastContainer" class="fixed z-50 w-full max-w-sm px-4 sm:px-6 right-[1px]">
-            <!-- Toast will be inserted here -->
         </div>
 
-        <!-- Changed purple gradient to blue to match dashboard -->
         <div
             class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 rounded-2xl p-4 mb-4 text-white relative overflow-hidden">
-            <!-- Decorative circles -->
             <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8"></div>
             <div class="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full -ml-6 -mb-6"></div>
 
@@ -186,7 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                     </div>
                 </div>
 
-                <!-- Spin Progress -->
                 <div class="bg-white/10 backdrop-blur rounded-xl p-3">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-blue-200 text-xs">Today's Spins</span>
@@ -206,21 +190,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
             <div class="relative mb-4">
                 <!-- Wheel Container -->
                 <div class="relative w-56 h-56 mx-auto">
-                    <!-- Changed outer glow to blue theme -->
                     <div
                         class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 via-cyan-500 to-blue-500 animate-pulse opacity-30 blur-xl">
                     </div>
 
-                    <!-- Wheel segments -->
+                    <!-- Wheel segments - rotation now set via JS inline style -->
                     <div class="relative w-full h-full rounded-full bg-gradient-conic from-blue-500 via-cyan-500 via-green-500 via-yellow-500 via-orange-500 via-red-500 via-pink-500 to-blue-500 p-1 shadow-2xl"
-                        id="wheel">
+                        id="wheel"
+                        data-prizes='[0.50,0.25,0.20,0.15,0.10,0.05,0.02,0.01]'>
                         <div
                             class="w-full h-full rounded-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center relative overflow-hidden">
-                            <!-- Inner decorative rings -->
                             <div class="absolute inset-4 rounded-full border-2 border-white/10"></div>
                             <div class="absolute inset-8 rounded-full border border-white/5"></div>
 
-                            <!-- Prize amounts arranged in circle -->
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <div class="text-center relative z-10">
 
@@ -235,7 +217,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                                 </div>
                             </div>
 
-                            <!-- Moved segment labels inward to avoid touching the border -->
+                            <!-- Segment labels: positioned at the same angles as the prize array.
+                                 Index 0 = $0.50 at top, going clockwise. -->
                             <div class="absolute top-8 left-1/2 -translate-x-1/2 text-yellow-400 text-xs font-bold">
                                 $0.50</div>
                             <div class="absolute top-12 right-10 text-green-400 text-xs font-bold">$0.25</div>
@@ -260,9 +243,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                 </div>
             </div>
 
-            <!-- Spin Button - Changed to blue theme -->
+            <!-- Spin Button -->
             <form method="POST" class="text-center" id="spinForm" action="/users/spin.php"><?php echo csrf_field(); ?>
-                <button type="submit" name="spin" id="spinBtn"<?php echo $left <= 0 ? "" : ""; ?>
+                <button type="submit" name="spin" id="spinBtn"
                     class="relative group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
                     <?php echo $left <= 0 ? "disabled" : ""; ?>>
                     <span class="relative z-10 flex items-center justify-center gap-2">
@@ -272,7 +255,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         <?php echo $left > 0 ? "SPIN NOW" : "NO SPINS LEFT"; ?> </span>
-                    <!-- Button glow effect -->
                     <div
                         class="absolute inset-0 rounded-xl bg-blue-400 opacity-0 group-hover:opacity-20 transition-opacity">
                     </div>
@@ -280,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
             </form>
         </div>
 
-        <!-- Added Spin Rules / Info section -->
+        <!-- Spin Rules / Info section -->
         <div class="bg-white rounded-2xl shadow-sm p-4 mb-4">
             <h2 class="text-gray-700 font-semibold mb-3 text-sm flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,7 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
             </div>
         </div>
 
-        <!-- Stats grid matching dashboard style -->
+        <!-- Stats grid -->
         <div class="mb-4">
             <h2 class="text-gray-700 font-semibold mb-2 text-sm">Spin Stats</h2>
             <div class="grid grid-cols-2 gap-2">
@@ -393,7 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
             </div>
         </div>
 
-        <!-- Upgrade CTA - Changed to blue theme -->
+        <!-- Upgrade CTA -->
         <div
             class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-4 mb-4 text-white relative overflow-hidden">
             <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-4 -mt-4"></div>
@@ -416,23 +398,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                 </div>
             </div>
         </div>
-
-        <!-- Increased spin duration from 3s to 4.5s -->
-        <style>
-            @keyframes spin {
-                from {
-                    transform: rotate(0deg);
-                }
-
-                to {
-                    transform: rotate(1800deg);
-                }
-            }
-
-            .spinning {
-                animation: spin 4.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-            }
-        </style>
 
         <script>
             // Toast notification system
@@ -472,12 +437,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
 
                     container.appendChild(toast);
 
-                    // Animate in
                     setTimeout(() => {
                         toast.classList.remove('opacity-0', 'translate-y-2');
                         toast.classList.add('opacity-100', 'translate-y-0');
 
-                        // Start progress bar
                         setTimeout(() => {
                             const progressBar = document.getElementById(`${toastId}-progress`);
                             if (progressBar) {
@@ -486,7 +449,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                         }, 10);
                     }, 10);
 
-                    // Auto dismiss
                     if (duration > 0) {
                         setTimeout(() => {
                             this.dismiss(toastId);
@@ -563,14 +525,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                 }
             }
 
-            // Show PHP messages as toasts on page load
-            document.addEventListener('DOMContentLoaded', function () {
-            });
-
             const spinBtn = document.getElementById('spinBtn');
             const wheel = document.getElementById('wheel');
             let audioContext;
             let isSpinning = false;
+            let currentRotation = 0;
+
+            // Prize values in clockwise order starting at the top (12 o'clock).
+            // Must match the data-prizes attribute on #wheel.
+            const PRIZES = JSON.parse(wheel.getAttribute('data-prizes') || '[0.50,0.25,0.20,0.15,0.10,0.05,0.02,0.01]');
+
+            // Each segment occupies 360/8 = 45 degrees.
+            const SEGMENT_ANGLE = 360 / PRIZES.length;
+
+            // Pointer is at the top (12 o'clock). To land on segment i,
+            // the wheel must rotate so that segment i's center sits at 0deg.
+            // Segment i center (in wheel coordinates) = i * SEGMENT_ANGLE.
+            // We rotate by (360 - segmentCenter) to bring it under the pointer.
+            function computeTargetRotation(reward) {
+                let idx = PRIZES.findIndex(p => Math.abs(p - reward) < 0.0001);
+                if (idx === -1) {
+                    // Fallback: find closest prize
+                    let best = 0, bestDiff = Infinity;
+                    PRIZES.forEach((p, i) => {
+                        const d = Math.abs(p - reward);
+                        if (d < bestDiff) { bestDiff = d; best = i; }
+                    });
+                    idx = best;
+                }
+                const segmentCenter = idx * SEGMENT_ANGLE;
+                // Add 5 full spins for the animation + land on the segment
+                const fullSpins = 360 * 5;
+                // Compute rotation delta to land segment under pointer at top
+                let target = fullSpins + (360 - segmentCenter);
+                // Ensure it always increases from current rotation
+                target = target + (Math.floor(currentRotation / 360) * 360);
+                while (target <= currentRotation) target += 360;
+                return target;
+            }
+
+            function spinWheelTo(reward) {
+                const target = computeTargetRotation(reward);
+                currentRotation = target;
+                wheel.style.transform = `rotate(${target}deg)`;
+            }
 
             function playTickerSound() {
                 if (!audioContext) {
@@ -608,60 +606,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['spin'])) {
                 tick();
             }
 
-            (function(){
-var spinForm = document.getElementById('spinForm');
-var csrf = (spinForm && spinForm.querySelector('input[name=csrf]')||{}).value || '';
-var pendingReward = null, spinFailed = false;
-if (spinForm) spinForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!spinBtn || spinBtn.disabled || isSpinning) return;
-    isSpinning = true;
-    spinBtn.disabled = true;
-    spinBtn.style.opacity = '.6';
-    wheel.classList.add('spinning');
-    playTickerSound();
-    pendingReward = null; spinFailed = false;
-    $.ajax({ url: (window.APP_BASE||'')+'/ajax/spin.php', method: 'POST', dataType: 'json', data: { csrf: csrf }, timeout: 15000 })
-      .done(function (res) {
-        if (res && res.success) { pendingReward = (res.data && res.data.reward) || 0; }
-        else { spinFailed = true; pendingReward = null; window.__spinErr = (res && res.message) || 'Spin failed. Try again.'; }
-      })
-      .fail(function () { spinFailed = true; window.__spinErr = 'Network error. Please try again.'; });
-    // Always resolve visually when the 4.5s animation ends (matches .spinning duration)
-    setTimeout(function () {
-        wheel.classList.remove('spinning');
-        isSpinning = false;
-        if (spinFailed) {
-            Toast.show(window.__spinErr || 'Spin failed. Try again.', 'error', 5000);
-            spinBtn.disabled = false; spinBtn.style.opacity = '';
-        } else if (pendingReward !== null) {
-            Toast.show('You won $' + Number(pendingReward).toFixed(2) + '!', 'success', 5000);
-            setTimeout(function(){ window.location.reload(); }, 1200);
-        } else {
-            // Response slower than animation: wait for it (max 10s) then resolve
-            var waited = 0;
-            var iv = setInterval(function () {
-                waited += 250;
-                if (pendingReward !== null || spinFailed || waited > 10000) {
-                    clearInterval(iv);
-                    if (spinFailed || pendingReward === null) { Toast.show(window.__spinErr || 'Spin failed. Try again.', 'error', 5000); spinBtn.disabled = false; spinBtn.style.opacity = ''; }
-                    else { Toast.show('You won $' + Number(pendingReward).toFixed(2) + '!', 'success', 5000); setTimeout(function(){ window.location.reload(); }, 1200); }
-                }
-            }, 250);
-        }
-    }, 4500);
-});
-})();
+            (function () {
+                var spinForm = document.getElementById('spinForm');
+                var csrf = (spinForm && spinForm.querySelector('input[name=csrf]') || {}).value || '';
+                var pendingReward = null, spinFailed = false;
+
+                if (spinForm) spinForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    if (!spinBtn || spinBtn.disabled || isSpinning) return;
+                    isSpinning = true;
+                    spinBtn.disabled = true;
+                    spinBtn.style.opacity = '.6';
+
+                    pendingReward = null; spinFailed = false;
+
+                    // Fire the AJAX request FIRST so we know the reward before
+                    // deciding where the wheel should stop.
+                    $.ajax({
+                        url: (window.APP_BASE || '') + '/ajax/spin.php',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: { csrf: csrf },
+                        timeout: 15000
+                    })
+                    .done(function (res) {
+                        if (res && res.success) {
+                            // Reward can be a number or a string; normalize to number
+                            pendingReward = Number(res.data && res.data.reward);
+                            if (isNaN(pendingReward)) pendingReward = 0;
+                        } else {
+                            spinFailed = true;
+                            pendingReward = null;
+                            window.__spinErr = (res && res.message) || 'Spin failed. Try again.';
+                        }
+                    })
+                    .fail(function () {
+                        spinFailed = true;
+                        window.__spinErr = 'Network error. Please try again.';
+                    })
+                    .always(function () {
+                        // Now that we know the reward (or error), spin the wheel
+                        // to the correct segment, or just re-enable the button.
+                        if (spinFailed) {
+                            Toast.show(window.__spinErr || 'Spin failed. Try again.', 'error', 5000);
+                            spinBtn.disabled = false;
+                            spinBtn.style.opacity = '';
+                            isSpinning = false;
+                            return;
+                        }
+
+                        // Animate the wheel to land on the winning segment
+                        wheel.classList.add('spinning');
+                        playTickerSound();
+                        spinWheelTo(pendingReward);
+
+                        // Wait for the CSS transition to finish, then show toast
+                        setTimeout(function () {
+                            wheel.classList.remove('spinning');
+                            isSpinning = false;
+                            Toast.show('You won $' + Number(pendingReward).toFixed(2) + '!', 'success', 5000);
+                            setTimeout(function () { window.location.reload(); }, 1500);
+                        }, 4600); // 4.5s transition + small buffer
+                    });
+                });
+            })();
         </script>
 
     </main>
 
-    <!-- Redesigned bottom navigation with modern SVG icons -->
     <nav
         class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-100 shadow-2xl z-50 safe-area-bottom">
         <div class="flex justify-around items-center h-16 max-w-lg mx-auto">
-            <!-- Home -->
-            <!-- Added pathPrefix to all navigation links -->
             <a href="/users/dashboard.php"
                 class="bottom-nav-item flex flex-col items-center justify-center flex-1 h-full relative text-gray-400 hover:text-gray-600">
                 <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -670,7 +685,6 @@ if (spinForm) spinForm.addEventListener('submit', function (e) {
                 </svg>
                 <span class="text-xs font-medium">Home</span>
             </a>
-            <!-- Hash -->
             <a href="/users/hash.php"
                 class="bottom-nav-item flex flex-col items-center justify-center flex-1 h-full relative text-gray-400 hover:text-gray-600">
                 <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -679,7 +693,6 @@ if (spinForm) spinForm.addEventListener('submit', function (e) {
                 </svg>
                 <span class="text-xs font-medium">Hash</span>
             </a>
-            <!-- Spin -->
             <a href="/users/spin.php"
                 class="bottom-nav-item flex flex-col items-center justify-center flex-1 h-full relative active">
                 <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -688,7 +701,6 @@ if (spinForm) spinForm.addEventListener('submit', function (e) {
                 </svg>
                 <span class="text-xs font-medium">Spin</span>
             </a>
-            <!-- Withdraw -->
             <a href="/users/withdraw.php"
                 class="bottom-nav-item flex flex-col items-center justify-center flex-1 h-full relative text-gray-400 hover:text-gray-600">
                 <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -697,7 +709,6 @@ if (spinForm) spinForm.addEventListener('submit', function (e) {
                 </svg>
                 <span class="text-xs font-medium">Withdraw</span>
             </a>
-            <!-- Profile -->
             <a href="/users/profile.php"
                 class="bottom-nav-item flex flex-col items-center justify-center flex-1 h-full relative text-gray-400 hover:text-gray-600">
                 <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -710,7 +721,6 @@ if (spinForm) spinForm.addEventListener('submit', function (e) {
     </nav>
 
     <script>
-        // Modal functionality
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -720,7 +730,6 @@ if (spinForm) spinForm.addEventListener('submit', function (e) {
             document.body.style.overflow = '';
         }
 
-        // Toast notification
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `fixed top-16 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-sm z-50 shadow-lg ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
