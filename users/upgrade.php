@@ -7,15 +7,18 @@ $u = require_login();
 // Determine user's current tier from the unified tiers table
 $st = $pdo->prepare('SELECT * FROM tiers WHERE id = ? LIMIT 1');
 $st->execute([(int)$u['tier_id']]);
-$currentTier = $st->fetch() ?: ['name'=>'Free Tier','daily_hashes'=>1,'daily_spins'=>1,'display_name'=>'Free Tier','display_rating'=>'','daily_hash_allowance'=>1,'daily_spin_allowance'=>1,'referral_requirement'=>3,'requirement_type'=>'fixed'];
+$currentTier = $st->fetch() ?: ['name' => 'Free Tier', 'daily_hashes' => 1, 'daily_spins' => 1, 'display_name' => 'Free Tier', 'display_rating' => '', 'daily_hash_allowance' => 1, 'daily_spin_allowance' => 1, 'referral_requirement' => 3, 'requirement_type' => 'fixed'];
 $tierName = $u['tier_name'] ?? $currentTier['display_name'] ?? 'Free Tier';
 $rating = $currentTier['display_rating'] ?? '';
 $hashLimit = (int)($currentTier['daily_hash_allowance'] ?? 1);
 $spinLimit = (int)($currentTier['daily_spin_allowance'] ?? 1);
 // Get user's referral count
-$st = $pdo->prepare('SELECT COUNT(*) c FROM referrals WHERE referrer_id=?'); $st->execute([(int)$u['id']]); $refCount = (int)$st->fetch()['c'];
+$st = $pdo->prepare('SELECT COUNT(*) c FROM referrals WHERE referrer_id=?');
+$st->execute([(int)$u['id']]);
+$refCount = (int)$st->fetch()['c'];
 // Get user's current tier daily progress
-$hashDone = today_count('hashes', (int)$u['id']); $spinDone = today_count('spins', (int)$u['id']);
+$hashDone = today_count('hashes', (int)$u['id']);
+$spinDone = today_count('spins', (int)$u['id']);
 // Get pending deposits
 $st = db()->prepare('SELECT tier_id FROM deposits WHERE user_id=? AND status="pending"');
 $st->execute([(int)$u['id']]);
@@ -29,7 +32,8 @@ $allOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" ORDER BY 
 
 <head>
     <meta charset="UTF-8">
-<?php if (site_favicon()): ?><link rel="icon" href="<?php echo e(site_favicon()); ?>"><?php endif; ?>
+    <?php if (site_favicon()): ?>
+        <link rel="icon" href="<?php echo e(site_favicon()); ?>"><?php endif; ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Upgrade Tier - <?php echo e(site_name()); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -187,17 +191,17 @@ $allOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" ORDER BY 
                             <p class="text-lg font-bold"><?php echo e($tierName); ?></p>
                         </div>
                         <div class="text-right">
-<?php if (!empty($currentTier)): ?>
-                            <span
-                                class="inline-flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full text-xs">
-                                <svg class="w-3 h-3 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <?php echo $currentTier['display_name']; ?> <?php echo $currentTier['display_rating']; ?>
-<?php else: ?>
-                                <span class="text-gray-500">Tier 0</span>
-<?php endif; ?>
+                            <?php if (!empty($currentTier)): ?>
+                                <span
+                                    class="inline-flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full text-xs">
+                                    <svg class="w-3 h-3 text-yellow-300" fill="currentColor" viewBox="0 0 10 10">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                    <?php echo $currentTier['display_name']; ?> <?php echo $currentTier['display_rating']; ?>
+                                <?php else: ?>
+                                    <span class="text-gray-500">Tier 0</span>
+                                <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -207,77 +211,87 @@ $allOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" ORDER BY 
         <!-- Added section title matching dashboard style -->
         <div class="flex items-center justify-between mb-3">
             <h2 class="text-gray-700 font-semibold text-sm">Available Tiers</h2>
-<?php if (!empty($currentTier)): ?>
-            <span class="text-xs text-gray-500">Your level: <?php echo $currentTier['display_name']; ?> (<?php echo $currentTier['display_rating']; ?>)</span>
-<?php else: ?>
-            <span class="text-xs text-gray-500">Tier 0</span>
-<?php endif; ?>
+            <?php if (!empty($currentTier)): ?>
+                <span class="text-xs text-gray-500">Your level: <?php echo $currentTier['display_name']; ?> (<?php echo $currentTier['display_rating']; ?>)</span>
+            <?php else: ?>
+                <span class="text-xs text-gray-500">Tier 0</span>
+            <?php endif; ?>
         </div>
 
         <!-- Redesigned tier cards with modern styling and SVG icons -->
         <div class="space-y-3 mb-4">
-<?php if (!empty($currentTier)): ?>
-<!-- Show upgrade tiers from database -->
-<?php // Filter to only the 3 upgrade tiers (those with star ratings) upgrade tiers
-$upgradeTiers = array_values(array_filter($allOpts, function($o) { return $o['display_rating'] !== '' && $o['id'] > 4; })); ?>
-<?php foreach ($upgradeTiers as $opt): $isCurrent = false; ?>
-<div class="bg-white rounded-2xl shadow-sm overflow-hidden <?php echo $isCurrent ? 'ring-2 ring-green-500' : ''; ?>">
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-3">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-sm">
-                    <?php echo $opt['display_rating']; ?>
+            <?php if (!empty($currentTier)): ?>
+                <!-- Show upgrade tiers from database -->
+                <?php
+                    // Show all tiers that have a star rating (i.e., upgrade-eligible), excluding the user's current tier
+                    $upgradeTiers = array_values(array_filter($allOpts, function ($o) use ($u) {
+                        return $o['display_rating'] !== '' && (int)$o['id'] !== (int)$u['tier_id'];
+                    }));
+                ?>
+                <?php foreach ($upgradeTiers as $opt): $isCurrent = false; ?>
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden <?php echo $isCurrent ? 'ring-2 ring-green-500' : ''; ?>">
+                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xs">
+                                        <?php echo $opt['display_rating']; ?>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-bold text-sm text-gray-800 truncate"><?php echo $opt['display_name']; ?></h3>
+                                        <p class="text-xs text-gray-500"><?php echo (int)$opt['daily_hash_allowance']; ?> hashes | <?php echo (int)$opt['daily_spin_allowance']; ?> spins</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xl font-bold text-blue-600">$<?php echo e(money($opt['price'])); ?></p>
+                                    <?php if ($refCount >= $opt['referral_requirement']): ?><span class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">CURRENT</span><?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="grid grid-cols-3 gap-2 mb-3">
+                                <div class="text-center p-2 bg-blue-50 rounded-xl">
+                                    <p class="text-sm font-bold text-gray-800"><?php echo (int)$opt['daily_hash_allowance']; ?></p>
+                                    <p class="text-xs text-gray-500">Hashes</p>
+                                </div>
+                                <div class="text-center p-2 bg-green-50 rounded-xl">
+                                    <p class="text-sm font-bold text-gray-800">$<?php echo e(money($opt['price'])); ?></p>
+                                    <p class="text-xs text-gray-500">Price</p>
+                                </div>
+                                <div class="text-center p-2 bg-purple-50 rounded-xl">
+                                    <p class="text-sm font-bold text-gray-800"><?php echo (int)$opt['daily_spin_allowance']; ?></p>
+                                    <p class="text-xs text-gray-500">Spins</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-2 mb-3">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Referral Requirement</p>
+                                <div class="grid grid-cols-2 gap-1 text-center">
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm"><?php echo (int)$opt['referral_requirement']; ?></p>
+                                        <p class="text-xs text-gray-500">referrals</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm"><?php echo $opt['requirement_type'] === 'threshold' ? 'more than' : 'exact'; ?></p>
+                                        <p class="text-xs text-gray-500"><?php echo $opt['requirement_type'] === 'threshold' ? '10' : ''; ?>+</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php if ($refCount >= $opt['referral_requirement']): ?>
+                                <div class="block w-full bg-green-100 text-green-700 py-2.5 rounded-xl font-semibold text-sm text-center">Eligible</div>
+                            <?php else: ?>
+                                <a href="/users/deposit.php?tier=<?php echo $opt['id']; ?>&tier_name=<?php echo urlencode($opt['display_name']); ?>" class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-xl font-semibold text-sm text-center transition">Upgrade Now</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <!-- Fallback: no current tier -->
+                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-3">
+                        <p class="text-gray-700 text-sm">Please log in to see upgrade options.</p>
+                    </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="font-bold text-sm text-gray-800 truncate"><?php echo $opt['display_name']; ?></h3>
-                    <p class="text-xs text-gray-500"><?php echo (int)$opt['daily_hash_allowance']; ?> hashes | <?php echo (int)$opt['daily_spin_allowance']; ?> spins</p>
-                </div>
-            </div>
-            <div class="text-right">
-                <p class="text-xl font-bold text-blue-600">$<?php echo e(money($opt['price'])); ?></p>
-<?php if ($refCount >= $opt['referral_requirement']): ?><span class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">CURRENT</span><?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
-    </div>
-    <div class="p-3">
-        <div class="grid grid-cols-3 gap-2 mb-3">
-            <div class="text-center p-2 bg-blue-50 rounded-xl">
-                <p class="text-sm font-bold text-gray-800"><?php echo (int)$opt['daily_hash_allowance']; ?></p>
-                <p class="text-xs text-gray-500">Hashes</p>
-            </div>
-            <div class="text-center p-2 bg-green-50 rounded-xl">
-                <p class="text-sm font-bold text-gray-800">$<?php echo e(money($opt['price'])); ?></p>
-                <p class="text-xs text-gray-500">Price</p>
-            </div>
-            <div class="text-center p-2 bg-purple-50 rounded-xl">
-                <p class="text-sm font-bold text-gray-800"><?php echo (int)$opt['daily_spin_allowance']; ?></p>
-                <p class="text-xs text-gray-500">Spins</p>
-            </div>
-        </div>
-        <div class="bg-gray-50 rounded-xl p-2 mb-3">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Referral Requirement</p>
-            <div class="grid grid-cols-2 gap-1 text-center">
-                <div><p class="font-bold text-gray-800 text-sm"><?php echo (int)$opt['referral_requirement']; ?></p><p class="text-xs text-gray-500">referrals</p></div>
-                <div><p class="font-bold text-gray-800 text-sm"><?php echo $opt['requirement_type'] === 'threshold' ? 'more than' : 'exact'; ?></p><p class="text-xs text-gray-500"><?php echo $opt['requirement_type'] === 'threshold' ? '10' : ''; ?>+</p></div>
-            </div>
-        </div>
-<?php if ($refCount >= $opt['referral_requirement']): ?>
-        <div class="block w-full bg-green-100 text-green-700 py-2.5 rounded-xl font-semibold text-sm text-center">Eligible</div>
-<?php else: ?>
-        <a href="/users/deposit.php?tier=<?php echo $opt['id']; ?>&tier_name=<?php echo urlencode($opt['display_name']); ?>" class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-xl font-semibold text-sm text-center transition">Upgrade Now</a>
-<?php endif; ?>
-</div>
-</div>
-<?php endforeach; ?>
-<?php else: ?>
-<!-- Fallback: no current tier -->
-<div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-3">
-        <p class="text-gray-700 text-sm">Please log in to see upgrade options.</p>
-    </div>
-</div>
-<?php endif; ?>
-</div>
 
     </main>
 
@@ -340,6 +354,7 @@ $upgradeTiers = array_values(array_filter($allOpts, function($o) { return $o['di
             document.getElementById(id).classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
+
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
             document.body.style.overflow = '';
