@@ -252,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="text-center mb-12">
                 <span class="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full mb-3">WHY CHOOSE US</span>
                 <h2 class="text-3xl font-bold text-gray-800 mb-3">Platform Features</h2>
-                <p class="text-gray-500 max-w-lg mx-auto">Discover why thousands of users trust Drillifyx for their crypto earnings journey</p>
+                <p class="text-gray-500 max-w-lg mx-auto">Discover why thousands of users trust NexoraSpin for their crypto earnings journey</p>
             </div>
 
             <!-- Features Grid -->
@@ -327,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
     <!-- Footer text -->
-    <p class="text-center text-gray-400 text-xs py-6 bg-white">&copy; 2026 Drillifyx. All rights reserved.</p>
+    <p class="text-center text-gray-400 text-xs py-6 bg-white">&copy; 2026 NexoraSpin. All rights reserved.</p>
 
     <script>
         function togglePassword() {

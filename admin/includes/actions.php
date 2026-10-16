@@ -70,7 +70,7 @@ function admin_approve_deposit(array $admin, int $depositId): array {
             $displayRating = '';
         }
         $expiry = date('Y-m-d H:i:s', strtotime('+' . ($tierRow['duration_days'] ?? 30) . ' days'));
-        $pdo->prepare('UPDATE users SET display_name=?, display_rating=?, tier_expires_at=? WHERE id=?')->execute([$tierName, $displayRating, $expiry, (int)$d['user_id']]);
+        $pdo->prepare('UPDATE users SET tier_id=?, tier_expires_at=? WHERE id=?')->execute([(int)$d['tier_id'], $expiry, (int)$d['user_id']]);
         $pdo->prepare('UPDATE deposits SET status="approved" WHERE id=? AND status="pending"')->execute([$depositId]);
         // Referral reward: pending referral becomes earned, referrer credited
         $reward = cfg_referral_reward();

@@ -278,7 +278,7 @@ $allOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" ORDER BY 
                             <?php if ($refCount >= $opt['referral_requirement']): ?>
                                 <div class="block w-full bg-green-100 text-green-700 py-2.5 rounded-xl font-semibold text-sm text-center">Eligible</div>
                             <?php else: ?>
-                                <a href="/users/deposit.php?tier=<?php echo $opt['id']; ?>&tier_name=<?php echo urlencode($opt['display_name']); ?>" class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-xl font-semibold text-sm text-center transition">Upgrade Now</a>
+                                <a href="/users/deposit.php?tier=<?php echo $opt['id']; ?>" class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-xl font-semibold text-sm text-center transition">Upgrade Now</a>
                             <?php endif; ?>
                         </div>
                     </div>

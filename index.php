@@ -653,7 +653,7 @@ try {
     </div>
 
     <!-- Simple Footer -->
-    <p class="text-center text-gray-400 text-xs py-8 bg-white">&copy; 2026 Drillifyx. All rights reserved.</p>
+    <p class="text-center text-gray-400 text-xs py-8 bg-white">&copy; 2026 NexoraSpin. All rights reserved.</p>
 
     <!-- Enhanced Back to Top Button -->
     <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-4 w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-1 z-50 group">

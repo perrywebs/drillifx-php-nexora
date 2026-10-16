@@ -21,6 +21,9 @@ function admin_action_label(string $action): string {
         'credit_user' => 'Added money', 'debit_user' => 'Removed money',
         'suspend_user' => 'Disabled account', 'activate_user' => 'Enabled account',
         'deposit_approve' => 'Approved deposit', 'deposit_reject' => 'Rejected deposit',
+        'payment_method_add' => 'Added payment method', 'payment_method_edit' => 'Edited payment method',
+        'payment_method_activate' => 'Enabled payment method', 'payment_method_deactivate' => 'Disabled payment method',
+        'payment_method_delete' => 'Deleted payment method',
         'withdrawal_approved' => 'Approved withdrawal', 'withdrawal_rejected' => 'Rejected withdrawal', 'withdrawal_paid' => 'Marked withdrawal paid',
         'spin_config' => 'Changed spin settings', 'spin_assign' => 'Gave a specific spin result', 'spin_assign_cancel' => 'Removed a specific spin result',
         'hash_config' => 'Changed hash settings', 'hash_assign' => 'Gave a specific hash result', 'hash_assign_cancel' => 'Removed a specific hash result',
@@ -46,6 +49,7 @@ function admin_sections(array $admin): array {
         ]],
         ['label' => 'Payments', 'items' => [
             ['deposits', 'Deposits', 'fa-arrow-down', '/admin/deposits.php', $canFinance],
+            ['payment_methods', 'Payment Methods', 'fa-credit-card', '/admin/payment_methods.php', $canConfig],
             ['withdrawals', 'Withdrawals', 'fa-wallet', '/admin/withdrawals.php', $canFinance],
             ['transactions', 'Transactions', 'fa-receipt', '/admin/transactions.php', $canFinance],
             ['referrals', 'Referrals', 'fa-user-plus', '/admin/referrals.php', $canFinance],

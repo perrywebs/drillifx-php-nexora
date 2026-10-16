@@ -29,7 +29,7 @@ $total = (int)$st->fetch()['c'];
 $pages = max(1, (int)ceil($total / $per));
 $page = min($page, $pages);
 $off = ($page - 1) * $per;
-$st = $pdo->prepare("SELECT d.*, u.username, u.email, t.name AS tier_name FROM deposits d JOIN users u ON u.id=d.user_id JOIN tiers t ON t.id=d.tier_id WHERE $w ORDER BY d.id DESC LIMIT $per OFFSET $off");
+$st = $pdo->prepare("SELECT d.*, u.username, u.email, t.name AS tier_name, m.name AS method_name FROM deposits d JOIN users u ON u.id=d.user_id JOIN tiers t ON t.id=d.tier_id LEFT JOIN payment_methods m ON m.id=d.payment_method_id WHERE $w ORDER BY d.id DESC LIMIT $per OFFSET $off");
 $st->execute($params);
 $rows = $st->fetchAll();
 admin_head('Deposits');
@@ -52,6 +52,18 @@ foreach ($rows as $d) {
     echo '<div class="bg-white rounded-2xl p-4 shadow-sm mb-3">';
     echo '<div class="flex flex-wrap justify-between gap-2 mb-2"><div><p class="font-bold text-sm">' . e($d['username']) . ' <span class="font-normal text-slate-400">' . e($d['email']) . '</span></p>';
     echo '<p class="text-sm">' . e($d['tier_name']) . ' · $' . e(number_format((float)$d['amount'], 2)) . ' · <span class="text-slate-400">' . e(date('M d, Y g:i A', strtotime($d['created_at']))) . '</span></p>';
+    $pmLabel = $d['payment_method_name'] ?: $d['method_name'] ?? null;
+    if ($pmLabel) echo '<p class="text-xs mt-1"><span class="inline-block bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-lg">Via ' . e($pmLabel) . '</span></p>';
+    if (!empty($d['payment_snapshot'])) {
+        $snap = json_decode((string)$d['payment_snapshot'], true);
+        if (is_array($snap) && !empty($snap['fields'])) {
+            echo '<details class="mt-1"><summary class="text-xs text-slate-500 cursor-pointer">Payment snapshot at submit time</summary><div class="text-xs text-slate-600 mt-1 space-y-0.5">';
+            foreach ($snap['fields'] as $sf) {
+                echo '<p><span class="font-semibold">' . e((string)($sf['label'] ?? '')) . ':</span> ' . e((string)($sf['value'] ?? '')) . '</p>';
+            }
+            echo '</div></details>';
+        }
+    }
     if ($d['proof_path']) {
         $isPdf = strtolower(substr($d['proof_path'], -4)) === '.pdf';
         echo '<p class="text-xs mt-2"><button onclick="openProof(\'' . e(url('/admin/proof.php?id=' . (int)$d['id'])) . '\',' . ($isPdf ? 'true' : 'false') . ')" class="text-blue-600 font-semibold bg-blue-50 px-3 py-1.5 rounded-lg">View proof</button></p>';
