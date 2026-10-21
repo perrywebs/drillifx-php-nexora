@@ -16,22 +16,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $r = admin_set_user_status($admin, $id, $_POST['do_status'] === 'suspended' ? 'suspended' : 'active');
         admin_flash($r['ok'] ? 'success' : 'error', $r['msg']);
     } elseif (isset($_POST['do_tier']) && $canStatus) {
-        $newTierId = (int)($_POST['new_tier'] ?? 0);
-        if ($newTierId <= 0) { admin_flash('error', 'Please select a tier.'); }
+        $rawTier = $_POST['new_tier'] ?? '';
+        if (!is_numeric($rawTier) || (int)$rawTier < 0) { admin_flash('error', 'Please select a tier.'); }
         else {
-            $tierCheck = $pdo->prepare('SELECT * FROM tiers WHERE id = ? LIMIT 1')->execute([$newTierId])->fetch();
-            if (!$tierCheck) { admin_flash('error', 'Tier not found.'); }
-            else {
-                $pdo->prepare('UPDATE users SET tier_id = ?, display_name = ?, display_rating = ? WHERE id = ?')->execute([$newTierId, $tierCheck['display_name'] ?? '', $tierCheck['display_rating'] ?? '', $id]);
-                admin_flash('success', 'User tier updated to ' . e($tierCheck['display_name'] ?? 'Tier') . '.');
+            $newTierId = (int)$rawTier;
+            try {
+                $tierSt = $pdo->prepare('SELECT * FROM tiers WHERE id = ? LIMIT 1');
+                $tierSt->execute([$newTierId]);
+                $tierCheck = $tierSt->fetch();
+                if (!$tierCheck) { admin_flash('error', 'Tier not found.'); }
+                else {
+                    $pdo->prepare('UPDATE users SET tier_id = ? WHERE id = ?')->execute([$newTierId, $id]);
+                    admin_flash('success', 'User tier updated to ' . ($tierCheck['display_name'] ?? 'Tier') . '.');
+                }
+            } catch (Throwable $e) {
+                error_log('[admin/user.php] tier update failed for user ' . $id . ': ' . $e->getMessage());
+                admin_flash('error', 'Something went wrong while saving the tier. Please try again.');
             }
         }
         redirect('/admin/user.php?id=' . $id);
     } elseif (isset($_POST['direction']) && $canMoney) {
-        $amt = abs((float)($_POST['amount'] ?? 0));
-        if ($_POST['direction'] === 'debit') $amt = -$amt;
-        $r = admin_adjust_balance($admin, $id, $amt, $_POST['reason'] ?? '');
-        admin_flash($r['ok'] ? 'success' : 'error', $r['msg']);
+        $direction = (string)($_POST['direction'] ?? '');
+        if ($direction !== 'credit' && $direction !== 'debit') admin_flash('error', 'That action is not valid.');
+        elseif (!admin_form_nonce_check($_POST['nonce'] ?? null)) admin_flash('error', 'This form was already submitted or has expired. Refresh the page and try again.');
+        elseif (!is_numeric($_POST['amount'] ?? '') || (float)$_POST['amount'] <= 0) admin_flash('error', 'Enter an amount greater than zero.');
+        else {
+            $amt = abs((float)$_POST['amount']);
+            if ($direction === 'debit') $amt = -$amt;
+            $r = admin_adjust_balance($admin, $id, $amt, (string)($_POST['reason'] ?? ''));
+            admin_flash($r['ok'] ? 'success' : 'error', $r['msg']);
+        }
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         admin_flash('error', 'You do not have permission to do that.');
     }
@@ -72,19 +86,21 @@ if ($canStatus) {
 echo '</div>';
 if ($canMoney) {
     echo '<div class="grid md:grid-cols-2 gap-3 mt-4">';
-    echo '<form method="POST" ' . admin_confirm('Add this money to ' . $u['username'] . '\'s balance?') . ' class="bg-green-50 border border-green-100 rounded-xl p-3 flex flex-wrap gap-2 items-end">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="direction" value="credit">';
+    echo '<form method="POST" ' . admin_confirm('Add this money to ' . $u['username'] . '\'s balance?') . ' class="bg-green-50 border border-green-100 rounded-xl p-3 flex flex-wrap gap-2 items-end">' . csrf_field() . admin_form_nonce_field() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="direction" value="credit">';
     echo '<label class="text-xs text-slate-500 flex-1 min-w-[100px]">Amount ($)<br><input name="amount" type="number" step="0.01" min="0.01" required class="w-full border rounded-xl px-3 py-2 text-sm bg-white"></label>';
     echo '<label class="text-xs text-slate-500 flex-[2] min-w-[160px]">Why? (required)<br><input name="reason" required maxlength="200" placeholder="e.g. Bonus for ..." class="w-full border rounded-xl px-3 py-2 text-sm bg-white"></label>';
     echo '<button class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">Add Money</button></form>';
-    echo '<form method="POST" ' . admin_confirm('Remove this money from ' . $u['username'] . '\'s balance?') . ' class="bg-red-50 border border-red-100 rounded-xl p-3 flex flex-wrap gap-2 items-end">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="direction" value="debit">';
+    echo '<form method="POST" ' . admin_confirm('Remove this money from ' . $u['username'] . '\'s balance?') . ' class="bg-red-50 border border-red-100 rounded-xl p-3 flex flex-wrap gap-2 items-end">' . csrf_field() . admin_form_nonce_field() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="direction" value="debit">';
     echo '<label class="text-xs text-slate-500 flex-1 min-w-[100px]">Amount ($)<br><input name="amount" type="number" step="0.01" min="0.01" required class="w-full border rounded-xl px-3 py-2 text-sm bg-white"></label>';
     echo '<label class="text-xs text-slate-500 flex-[2] min-w-[160px]">Why? (required)<br><input name="reason" required maxlength="200" placeholder="e.g. Correction for ..." class="w-full border rounded-xl px-3 py-2 text-sm bg-white"></label>';
     echo '<button class="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">Remove Money</button></form>';
 echo '</div>';
+}
+if ($canStatus) {
 echo '<div class="bg-white rounded-2xl p-4 shadow-sm mt-4">';
 echo '<h2 class="font-bold text-sm mb-3">Tier Assignment</h2>';
 echo '<p class="text-sm text-slate-500 mb-3">Assign or change the user\'s current tier.</p>';
-echo '<form method="POST" class="space-y-3">';
+echo '<form method="POST" class="space-y-3">' . csrf_field();
 echo '<input type="hidden" name="id" value="' . $id . '">';
 echo '<input type="hidden" name="do_tier" value="1">';
 echo '<div class="grid md:grid-cols-2 gap-3">';

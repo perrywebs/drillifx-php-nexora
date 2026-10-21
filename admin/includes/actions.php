@@ -20,7 +20,7 @@ function admin_adjust_balance(array $admin, int $userId, float $amount, string $
         $ref = gen_reference('ADJ');
         $newBal = (float)$u['balance'] + $amount;
         $pdo->prepare('UPDATE users SET balance=?, total_earned=total_earned+? WHERE id=?')->execute([$newBal, max(0, $amount), $userId]);
-        $pdo->prepare('INSERT INTO transactions (user_id,type,amount,balance_after,status,reference,description) VALUES (?,?,?,?,?,?)')
+        $pdo->prepare('INSERT INTO transactions (user_id,type,amount,balance_after,status,reference,description) VALUES (?,?,?,?,?,?,?)')
             ->execute([$userId, $amount > 0 ? 'Admin Credit' : 'Admin Debit', $amount, $newBal, 'completed', $ref, 'Admin ' . $admin['username'] . ': ' . mb_substr(trim($reason), 0, 200)]);
         notify($userId, $amount > 0 ? 'Account credited' : 'Account debited', 'Admin adjustment of $' . number_format(abs($amount), 2) . ' (' . $ref . '). Reason: ' . mb_substr(trim($reason), 0, 200));
         log_activity($userId, 'admin_adjust', ($amount > 0 ? 'Credited $' : 'Debited $') . number_format(abs($amount), 2) . ' by ' . $admin['username']);
@@ -29,31 +29,37 @@ function admin_adjust_balance(array $admin, int $userId, float $amount, string $
         return ['ok' => true, 'msg' => 'Balance updated. New balance: $' . number_format($newBal, 2)];
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
-        return ['ok' => false, 'msg' => 'Adjustment failed.'];
+        error_log('[admin_adjust_balance] user=' . $userId . ' amount=' . $amount . ': ' . $e->getMessage());
+        return ['ok' => false, 'msg' => 'Balance could not be updated. Please try again.'];
     }
 }
 
 function admin_set_user_status(array $admin, int $userId, string $status): array {
     if (!in_array($status, ['active', 'suspended'], true)) return ['ok' => false, 'msg' => 'Invalid status.'];
     $pdo = db();
-    $st = $pdo->prepare('SELECT username, status FROM users WHERE id=?');
-    $st->execute([$userId]);
-    $u = $st->fetch();
-    if (!$u) return ['ok' => false, 'msg' => 'User not found.'];
-    if ($u['status'] === $status) return ['ok' => false, 'msg' => 'User is already ' . $status . '.'];
-    $pdo->prepare('UPDATE users SET status=? WHERE id=?')->execute([$status, $userId]);
-    $show = $status === 'suspended' ? 'disabled' : 'active';
-    notify($userId, 'Account status changed', 'Your account is now ' . $show . '. Contact support if you have questions.');
-    log_activity($userId, 'status', 'Account ' . $show . ' by admin ' . $admin['username']);
-    admin_log((int)$admin['id'], $status === 'suspended' ? 'suspend_user' : 'activate_user', 'Admin ' . $admin['username'] . ' set ' . $u['username'] . ' to ' . $show, 'user', $userId);
-    return ['ok' => true, 'msg' => $u['username'] . '\'s account is now ' . $show . '.'];
+    try {
+        $st = $pdo->prepare('SELECT username, status FROM users WHERE id=?');
+        $st->execute([$userId]);
+        $u = $st->fetch();
+        if (!$u) return ['ok' => false, 'msg' => 'User not found.'];
+        if ($u['status'] === $status) return ['ok' => false, 'msg' => 'User is already ' . $status . '.'];
+        $pdo->prepare('UPDATE users SET status=? WHERE id=?')->execute([$status, $userId]);
+        $show = $status === 'suspended' ? 'disabled' : 'active';
+        notify($userId, 'Account status changed', 'Your account is now ' . $show . '. Contact support if you have questions.');
+        log_activity($userId, 'status', 'Account ' . $show . ' by admin ' . $admin['username']);
+        admin_log((int)$admin['id'], $status === 'suspended' ? 'suspend_user' : 'activate_user', 'Admin ' . $admin['username'] . ' set ' . $u['username'] . ' to ' . $show, 'user', $userId);
+        return ['ok' => true, 'msg' => $u['username'] . '\'s account is now ' . $show . '.'];
+    } catch (Throwable $e) {
+        error_log('[admin_set_user_status] user=' . $userId . ' status=' . $status . ': ' . $e->getMessage());
+        return ['ok' => false, 'msg' => 'The account status could not be updated. Please try again.'];
+    }
 }
 
 function admin_approve_deposit(array $admin, int $depositId): array {
     $pdo = db();
     $pdo->beginTransaction();
     try {
-        $st = $pdo->prepare('SELECT d.*, u.username, u.email, u.referred_by_id, u.tier_id, t.display_name, t.display_rating FROM deposits d JOIN users u ON u.id=d.user_id LEFT JOIN tiers t ON t.id = u.tier_id WHERE d.id=? FOR UPDATE');
+        $st = $pdo->prepare('SELECT d.*, u.username, u.email, u.tier_id AS current_tier_id, t.display_name, t.display_rating FROM deposits d JOIN users u ON u.id=d.user_id LEFT JOIN tiers t ON t.id = d.tier_id WHERE d.id=? FOR UPDATE');
         $st->execute([$depositId]);
         $d = $st->fetch();
         if (!$d) { $pdo->rollBack(); return ['ok' => false, 'msg' => 'Deposit not found.']; }
@@ -83,7 +89,7 @@ function admin_approve_deposit(array $admin, int $depositId): array {
             $st = $pdo->prepare('SELECT balance, username, email FROM users WHERE id=?');
             $st->execute([(int)$ref['referrer_id']]);
             $rr = $st->fetch();
-            $pdo->prepare('INSERT INTO transactions (user_id,type,amount,balance_after,status,reference,description) VALUES (?,?,?,?,?,?)')
+            $pdo->prepare('INSERT INTO transactions (user_id,type,amount,balance_after,status,reference,description) VALUES (?,?,?,?,?,?,?)')
                 ->execute([(int)$ref['referrer_id'], 'Referral Reward', $reward, (float)$rr['balance'], 'completed', gen_reference('TXN'), 'Referral ' . $d['username'] . ' upgraded']);
             notify((int)$ref['referrer_id'], 'Referral reward earned', '$' . number_format($reward, 2) . ' for ' . $d['username'] . ' upgrading.');
             try { send_template($rr['email'], 'referral_earned', ['name' => $rr['username'], 'referred_user' => $d['username'], 'amount' => number_format($reward, 2)], (int)$ref['referrer_id']); } catch (Throwable $e) {}
@@ -102,6 +108,7 @@ function admin_approve_deposit(array $admin, int $depositId): array {
         return ['ok' => true, 'msg' => 'Deposit approved. ' . $tierName . ' active for ' . $d['username'] . '.'];
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
+        error_log('[admin_approve_deposit] deposit=' . $depositId . ': ' . $e->getMessage());
         return ['ok' => false, 'msg' => 'Approval failed.'];
     }
 }
@@ -125,6 +132,7 @@ function admin_reject_deposit(array $admin, int $depositId, string $reason): arr
         return ['ok' => true, 'msg' => 'Deposit rejected. User notified.'];
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
+        error_log('[admin_reject_deposit] deposit=' . $depositId . ': ' . $e->getMessage());
         return ['ok' => false, 'msg' => 'Rejection failed.'];
     }
 }
@@ -151,7 +159,7 @@ function admin_withdrawal(array $admin, int $withdrawalId, string $to, string $n
             $st->execute([(int)$w['user_id']]);
             $bal = (float)$st->fetch()['balance'] + (float)$w['amount'];
             $pdo->prepare('UPDATE users SET balance=? WHERE id=?')->execute([$bal, (int)$w['user_id']]);
-            $pdo->prepare('INSERT INTO transactions (user_id,type,amount,balance_after,status,reference,description) VALUES (?,?,?,?,?,?)')
+            $pdo->prepare('INSERT INTO transactions (user_id,type,amount,balance_after,status,reference,description) VALUES (?,?,?,?,?,?,?)')
                 ->execute([(int)$w['user_id'], 'Withdrawal Reversal', (float)$w['amount'], $bal, 'completed', gen_reference('TXN'), 'Refund for rejected withdrawal ' . $w['reference']]);
         }
         notify((int)$w['user_id'], 'Withdrawal ' . $to, 'Your withdrawal ' . $w['reference'] . ' ($' . number_format((float)$w['amount'], 2) . ') is now ' . $to . ($note !== '' ? '. Note: ' . trim($note) : '.'));
@@ -163,6 +171,7 @@ function admin_withdrawal(array $admin, int $withdrawalId, string $to, string $n
         return ['ok' => true, 'msg' => "Withdrawal $to." . ($to === 'rejected' ? ' Amount refunded.' : '')];
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
+        error_log('[admin_withdrawal] withdrawal=' . $withdrawalId . ' to=' . $to . ': ' . $e->getMessage());
         return ['ok' => false, 'msg' => 'Update failed.'];
     }
 }

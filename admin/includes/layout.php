@@ -14,6 +14,32 @@ function admin_flashes(): string {
     }
     return $out;
 }
+// One-time form tokens: stop a retried/double-submitted POST (e.g. Add Money)
+// from running the same balance change twice. Each rendered form gets a fresh
+// token; the token is consumed on the first accepted POST and can never be reused.
+function admin_form_nonce_field(): string {
+    $token = bin2hex(random_bytes(16));
+    $pool = is_array($_SESSION['admin_form_nonces'] ?? null) ? $_SESSION['admin_form_nonces'] : [];
+    $now = time();
+    foreach ($pool as $t => $ts) {
+        if (!is_string($t) || $now - (int)$ts > 1800) unset($pool[$t]);
+    }
+    $pool[$token] = $now;
+    if (count($pool) > 25) {
+        asort($pool);
+        $pool = array_slice($pool, -25, null, true);
+    }
+    $_SESSION['admin_form_nonces'] = $pool;
+    return '<input type="hidden" name="nonce" value="' . e($token) . '">';
+}
+function admin_form_nonce_check(?string $token): bool {
+    if (!is_string($token) || $token === '') return false;
+    $pool = is_array($_SESSION['admin_form_nonces'] ?? null) ? $_SESSION['admin_form_nonces'] : [];
+    if (!array_key_exists($token, $pool) || time() - (int)$pool[$token] > 1800) return false;
+    unset($pool[$token]);
+    $_SESSION['admin_form_nonces'] = $pool;
+    return true;
+}
 // Technical audit action codes -> everyday language
 function admin_action_label(string $action): string {
     $map = [
