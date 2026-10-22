@@ -14,6 +14,10 @@ $st = $pdo->prepare('SELECT amount, method, status, reference, created_at FROM w
 $st->execute([(int)$u['id']]);
 $recentWd = $st->fetchAll();
 
+// Admin-managed settings: single source of truth for displayed rates and limits
+$fxRates = cfg_fx_rates();
+$minWithdraw = cfg_min_withdraw();
+
 // Non-JS fallback
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
     if (!csrf_check($_POST['csrf'] ?? null)) {
@@ -167,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_SERVER['HTTP_X_REQUESTED_W
                         </div>
                         <div class="text-right">
                             <p class="text-blue-200 text-xs">Min. Withdrawal</p>
-                            <p class="text-lg font-bold">$100.00</p>
+                            <p class="text-lg font-bold">$<?php echo e(money($minWithdraw)); ?></p>
                         </div>
                     </div>
                 </div>
@@ -189,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_SERVER['HTTP_X_REQUESTED_W
                     <label class="block text-xs font-medium text-gray-500 mb-1">Amount (USDC)</label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
-                        <input type="number" name="amount" step="0.01" min="100" max="<?php echo e((string)(float)$u["balance"]); ?>"
+                        <input type="number" name="amount" step="0.01" min="<?php echo e(rtrim(rtrim(number_format((float)$minWithdraw, 2, '.', ''), '0'), '.')); ?>" max="<?php echo e((string)(float)$u["balance"]); ?>"
                             class="w-full pl-8 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg font-semibold border-gray-200"
                             id="withdrawAmount" placeholder="0.00" value="">
                     </div>
@@ -198,10 +202,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_SERVER['HTTP_X_REQUESTED_W
                 <div class="bg-gradient-to-r from-blue-50 to-sky-50 rounded-xl p-3 border border-blue-100">
                     <label class="block text-xs font-medium text-gray-500 mb-2">You Will Receive</label>
                     <div class="flex items-center gap-2">
-                        <select id="currencySelect" class="px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm font-medium focus:ring-2 focus:ring-blue-500">
-                            <option value="1.0000" data-code="USD">USD</option>
-                            <option value="1600.0000" data-code="NGN">NGN</option>
-                            <option value="21.6000" data-code="GHS">GHS</option>
+                        <select id="currencySelect" name="currency" class="px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                            <?php foreach ($fxRates as $code => $rate): ?>
+                            <option value="<?php echo e(number_format((float)$rate, 4, '.', '')); ?>" data-code="<?php echo e((string)$code); ?>"><?php echo e((string)$code); ?></option>
+                            <?php endforeach; ?>
                         </select>
                         <div class="flex-1 bg-white px-3 py-2 border border-gray-200 rounded-lg">
                             <span id="localAmount" class="font-bold text-blue-600">0.00</span>
@@ -435,7 +439,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_SERVER['HTTP_X_REQUESTED_W
                     <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Minimum withdrawal amount is $100.00</span>
+                    <span>Minimum withdrawal amount is $<?php echo e(money($minWithdraw)); ?></span>
                 </li>
                 <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

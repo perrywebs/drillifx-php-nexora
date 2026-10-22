@@ -43,12 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             admin_flash('error', "Tier name '$name' already exists.");
         } else {
             $perHash = $price / max(1, $dailyHashes);
+            // tiers.id has no AUTO_INCREMENT in the schema: assign the next id explicitly
+            $nextId = (int)q($pdo, 'SELECT COALESCE(MAX(id),0)+1 FROM tiers')->fetchColumn();
             q($pdo,
                 'INSERT INTO tiers
-                    (name, daily_hashes, daily_spins, price, duration_days, per_hash,
+                    (id, name, daily_hashes, daily_spins, daily_hash_allowance, daily_spin_allowance, price, duration_days, per_hash,
                      display_name, display_rating, referral_requirement, requirement_type, active)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,1)',
-                [$name, $dailyHashes, $dailySpins, $price, $durationDays, $perHash,
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,1)',
+                [$nextId, $name, $dailyHashes, $dailySpins, $dailyHashes, $dailySpins, $price, $durationDays, $perHash,
                  $displayName, $displayRating, $referralReq, $reqType]
             );
             admin_log((int)$admin['id'], 'tier_add', "Tier '$name' created");
@@ -75,10 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             q($pdo,
                 'UPDATE tiers
                     SET display_name=?, display_rating=?, daily_hashes=?, daily_spins=?,
+                        daily_hash_allowance=?, daily_spin_allowance=?,
                         price=?, duration_days=?, per_hash=?,
                         referral_requirement=?, requirement_type=?
                   WHERE id=?',
-                [$dName, $dRating, $dHashes, $dSpins, $dPrice, $dDuration,
+                [$dName, $dRating, $dHashes, $dSpins, $dHashes, $dSpins, $dPrice, $dDuration,
                  $dPrice / max(1, $dHashes), $dRefReq, $dReqType, $tid]
             );
             admin_log((int)$admin['id'], 'tier_edit', "Tier #$tid updated");

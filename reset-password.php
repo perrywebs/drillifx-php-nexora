@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
+maintenance_gate_public();
 if (current_user()) redirect('/users/dashboard.php');
 $token = $_GET['token'] ?? $_POST['token'] ?? '';
 $err = ''; $done = false;

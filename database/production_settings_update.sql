@@ -1,0 +1,36 @@
+-- =====================================================================
+-- Drillify — production settings update
+-- Review order matters. This file is safe to re-run (idempotent).
+-- =====================================================================
+--
+-- NOTE ON min_withdraw / fx_* settings:
+--   No INSERT is required. The `settings` table stores every admin
+--   setting as a row (key `k`, value `v`). `set_setting()` upserts on
+--   save, so if `min_withdraw` is absent it is created the first time
+--   an admin saves Admin → General Settings. The admin form field
+--   "Min withdrawal (USD)" and the server-side check in
+--   includes/withdraw_logic.php (do_withdraw) both already read this
+--   key. Current defaults after first save are inserted below ONLY as
+--   commented reference values — uncomment only if you want to seed
+--   values BEFORE anyone visits the settings page:
+--
+-- INSERT INTO `settings` (`k`, `v`) VALUES
+--   ('min_withdraw', '100'),
+--   ('min_deposit',  '25'),
+--   ('fx_USD',       '1'),
+--   ('fx_NGN',       '1600'),
+--   ('fx_GHS',       '21.6')
+-- ON DUPLICATE KEY UPDATE `k` = `k`;   -- no-op if already present
+--
+-- ---------------------------------------------------------------------
+-- OPTIONAL HARDENING (recommended, backward compatible):
+--   `tiers.id` currently has no AUTO_INCREMENT, so admin/tiers.php
+--   cannot rely on the database to assign ids. The application now
+--   computes the next id explicitly (SELECT COALESCE(MAX(id),0)+1),
+--   so this ALTER is NOT required for the fix to work — it removes the
+--   root cause so future inserts cannot fail with "Field 'id' doesn't
+--   have a default value". Existing rows (including id 0) are kept.
+--   Next generated id will be MAX(id)+1.
+-- ---------------------------------------------------------------------
+ALTER TABLE `tiers`
+  MODIFY `id` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT;

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
+maintenance_gate_public();
 $pdo = db();
 $page = max(1, min(100, (int)($_GET['page'] ?? 1)));
 $per = 20;
@@ -84,6 +85,6 @@ $from = $total ? $off + 1 : 0; $to = min($total, $off + $per);
 </div>
 <div class="text-center mt-6"><a href="/register.php" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-2xl font-semibold">Get Started Free</a></div>
 </main>
-<p class="text-center text-gray-400 text-xs py-8 bg-white">&copy; 2026 Drillifyx. All rights reserved.</p>
+<p class="text-center text-gray-400 text-xs py-8 bg-white">&copy; 2026 <?php echo e(site_name()); ?>. All rights reserved.</p>
 </body>
 </html>

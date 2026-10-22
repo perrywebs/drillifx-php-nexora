@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/mail.php';
+maintenance_gate_public();
 
 if (current_user()) redirect('/users/dashboard.php');
 
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $referrerId = null;
-    if (!$errors && $ref !== '') {
+    if (!$errors && $ref !== '' && cfg_flag('referral_enabled', true)) {
         $r = q($pdo, 'SELECT id FROM users WHERE referral_code = ? LIMIT 1', [$ref])->fetch();
         if (!$r) $errors[] = 'Invalid referral code.';
         else     $referrerId = (int)$r['id'];
@@ -110,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // These must NOT be inside the transaction: a mail/notify failure
     // should never roll back a successfully created account.
     try {
-        notify($uid, 'Welcome to NexoraSpin',
+        notify($uid, 'Welcome to ' . site_name(),
             'Your account was created. Start with Hash & Spin from your dashboard.');
     } catch (Throwable $e) {
         error_log('[register] notify failed: ' . $e->getMessage());
@@ -322,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <p class="text-center text-gray-400 text-xs mt-6">&copy; 2026 NexoraSpin. All rights reserved.</p>
+        <p class="text-center text-gray-400 text-xs mt-6">&copy; 2026 <?php echo e(site_name()); ?>. All rights reserved.</p>
     </div>
 
     <script>

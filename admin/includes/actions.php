@@ -79,7 +79,8 @@ function admin_approve_deposit(array $admin, int $depositId): array {
         $pdo->prepare('UPDATE users SET tier_id=?, tier_expires_at=? WHERE id=?')->execute([(int)$d['tier_id'], $expiry, (int)$d['user_id']]);
         $pdo->prepare('UPDATE deposits SET status="approved" WHERE id=? AND status="pending"')->execute([$depositId]);
         // Referral reward: pending referral becomes earned, referrer credited
-        $reward = cfg_referral_reward();
+        // (only while the admin-managed referral system is enabled)
+        $reward = cfg_flag('referral_enabled', true) ? cfg_referral_reward() : 0.0;
         $st = $pdo->prepare('SELECT * FROM referrals WHERE referred_id=? AND status="pending" LIMIT 1 FOR UPDATE');
         $st->execute([(int)$d['user_id']]);
         $ref = $st->fetch();

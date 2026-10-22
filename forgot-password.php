@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/mail.php';
+maintenance_gate_public();
 if (current_user()) redirect('/users/dashboard.php');
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -124,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         
         <!-- Footer text -->
-        <p class="text-center text-gray-400 text-xs mt-6">&copy; 2026 Drillifyx. All rights reserved.</p>
+        <p class="text-center text-gray-400 text-xs mt-6">&copy; 2026 <?php echo e(site_name()); ?>. All rights reserved.</p>
     </div>
     
     <!-- Client-side validation script -->

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
+maintenance_gate_public();
 try {
     $pdo = db();
     $n = $pdo->query('SELECT COUNT(*) c FROM users')->fetch()['c'] ?? 0;
@@ -29,7 +30,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php seo_head(['title' => site_name() . ' - ' . site_tagline(), 'description' => 'Create a free ' . site_name() . ' account to hash, spin and earn USDC rewards daily, and manage everything from your dashboard.', 'path' => '/']); ?>
+    <?php seo_head(['title' => site_name() . ' - ' . site_tagline(), 'description' => (string)(setting('site_description') ?: ('Create a free ' . site_name() . ' account to hash, spin and earn USDC rewards daily, and manage everything from your dashboard.')), 'path' => '/']); ?>
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -653,7 +654,7 @@ try {
     </div>
 
     <!-- Simple Footer -->
-    <p class="text-center text-gray-400 text-xs py-8 bg-white">&copy; 2026 NexoraSpin. All rights reserved.</p>
+    <p class="text-center text-gray-400 text-xs py-8 bg-white">&copy; 2026 <?php echo e(site_name()); ?>. All rights reserved.</p>
 
     <!-- Enhanced Back to Top Button -->
     <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-4 w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-1 z-50 group">

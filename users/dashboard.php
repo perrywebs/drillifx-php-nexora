@@ -465,7 +465,7 @@ $refLink = referral_link($u['referral_code']);
                     </div>
                     <div>
                         <p class="font-semibold text-sm">Refer & Earn</p>
-                        <p class="text-xs text-blue-200">$10 per upgrade</p>
+                        <p class="text-xs text-blue-200">$<?php echo e(money(cfg_referral_reward())); ?> per upgrade</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">

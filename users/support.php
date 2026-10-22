@@ -3,6 +3,10 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/auth.php';
 $u = require_login();
 $support = app_config('support');
+// Admin-managed settings override the static config fallbacks
+$support['email'] = (string)(setting('support_email') ?: setting('contact_email') ?: ($support['email'] ?? ''));
+$minWithdraw = cfg_min_withdraw();
+$referralReward = cfg_referral_reward();
 ?><!DOCTYPE html>
 <html lang="en">
 
@@ -204,7 +208,7 @@ $support = app_config('support');
                 </div>
                 <div class="flex-1">
                     <h3 class="font-semibold text-gray-800">Email Us</h3>
-                    <p class="text-gray-500 text-sm">support@nexoraspin.live</p>
+                    <p class="text-gray-500 text-sm"><?php echo e($support["email"]); ?></p>
                 </div>
                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -265,7 +269,7 @@ $support = app_config('support');
                         </svg>
                     </button>
                     <div id="faqContent3" class="hidden px-4 pb-4">
-                        <p class="text-gray-600 text-sm">The minimum withdrawal amount is $100. Once you reach this
+                        <p class="text-gray-600 text-sm">The minimum withdrawal amount is $<?php echo e(money($minWithdraw)); ?>. Once you reach this
                             amount, you can request a withdrawal through Bank Transfer, Mobile Money, or Crypto.</p>
                     </div>
                 </div>
@@ -281,7 +285,7 @@ $support = app_config('support');
                     </button>
                     <div id="faqContent4" class="hidden px-4 pb-4">
                         <p class="text-gray-600 text-sm">Share your referral link with friends. When they sign up and
-                            upgrade to a paid tier, you'll receive $10 bonus credited to your account.</p>
+                            upgrade to a paid tier, you'll receive $<?php echo e(money($referralReward)); ?> bonus credited to your account.</p>
                     </div>
                 </div>
 

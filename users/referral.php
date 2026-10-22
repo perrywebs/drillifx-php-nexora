@@ -4,6 +4,9 @@ require_once __DIR__ . '/../includes/auth.php';
 $u = require_login();
 $pdo = db();
 $refLink = referral_link($u['referral_code']);
+$refLinkEnc = rawurlencode($refLink);
+$siteName = site_name();
+$referralReward = cfg_referral_reward();
 $st = $pdo->prepare("SELECT COUNT(*) c FROM referrals WHERE referrer_id=? AND status='earned'"); $st->execute([(int)$u['id']]); $earnedCount = (int)$st->fetch()['c'];
 $st = $pdo->prepare("SELECT COUNT(*) c FROM referrals WHERE referrer_id=? AND status='pending'"); $st->execute([(int)$u['id']]); $pendingCount = (int)$st->fetch()['c'];
 $st = $pdo->prepare('SELECT u.username, r.reward, r.created_at FROM referrals r JOIN users u ON u.id=r.referred_id WHERE r.referrer_id=? AND r.status="earned" ORDER BY r.id DESC LIMIT 20'); $st->execute([(int)$u['id']]); $earnedList = $st->fetchAll();
@@ -192,7 +195,7 @@ $st = $pdo->prepare('SELECT COALESCE(SUM(reward),0) s FROM referrals WHERE refer
                     </svg>
                 </div>
                 <div class="flex-1">
-                    <p class="font-bold text-sm">Earn $10 per referral!</p>
+                    <p class="font-bold text-sm">Earn $<?php echo e(money($referralReward)); ?> per referral!</p>
                     <p class="text-green-100 text-xs">When your referral upgrades to a paid tier</p>
                 </div>
             </div>
@@ -237,7 +240,7 @@ $st = $pdo->prepare('SELECT COALESCE(SUM(reward),0) s FROM referrals WHERE refer
             <div class="mt-3 pt-3 border-t border-gray-100">
                 <p class="text-xs text-gray-500 mb-2">Share via</p>
                 <div class="flex gap-2">
-                    <a href="https://wa.me/?text=Join%20Drillifyx%20and%20start%20earning!%20https%3A%2F%2Fdrillifyx.org%2Fregister.php%3Fref%3D<?php echo e($u["referral_code"]); ?>"
+                    <a href="https://wa.me/?text=<?php echo e(rawurlencode('Join ' . $siteName . ' and start earning! ' . $refLink)); ?>"
                         target="_blank"
                         class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-xs font-medium text-center transition flex items-center justify-center gap-1.5">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -246,7 +249,7 @@ $st = $pdo->prepare('SELECT COALESCE(SUM(reward),0) s FROM referrals WHERE refer
                         </svg>
                         WhatsApp
                     </a>
-                    <a href="https://t.me/share/url?url=https%3A%2F%2Fdrillifyx.org%2Fregister.php%3Fref%3D<?php echo e($u["referral_code"]); ?>&text=Join%20Drillifyx%20and%20start%20earning!"
+                    <a href="https://t.me/share/url?url=<?php echo e($refLinkEnc); ?>&text=<?php echo e(rawurlencode('Join ' . $siteName . ' and start earning!')) ?>"
                         target="_blank"
                         class="flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2 rounded-lg text-xs font-medium text-center transition flex items-center justify-center gap-1.5">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -255,7 +258,7 @@ $st = $pdo->prepare('SELECT COALESCE(SUM(reward),0) s FROM referrals WHERE refer
                         </svg>
                         Telegram
                     </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdrillifyx.org%2Fregister.php%3Fref%3D<?php echo e($u["referral_code"]); ?>"
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo e($refLinkEnc); ?>"
                         target="_blank"
                         class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs font-medium text-center transition flex items-center justify-center gap-1.5">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -278,7 +281,7 @@ $st = $pdo->prepare('SELECT COALESCE(SUM(reward),0) s FROM referrals WHERE refer
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Earned Referrals
-                <span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">0</span>
+                <span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full"><?php echo (int)$earnedCount; ?></span>
             </h2>
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div class="p-6 text-center">
@@ -321,7 +324,7 @@ $st = $pdo->prepare('SELECT COALESCE(SUM(reward),0) s FROM referrals WHERE refer
                 <div class="flex items-start gap-3">
                     <span
                         class="w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
-                    <p class="text-xs text-gray-600">When they upgrade to a paid tier, you earn $10</p>
+                    <p class="text-xs text-gray-600">When they upgrade to a paid tier, you earn $<?php echo e(money($referralReward)); ?></p>
                 </div>
             </div>
         </div>

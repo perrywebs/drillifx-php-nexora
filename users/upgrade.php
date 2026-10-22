@@ -24,7 +24,7 @@ $st = db()->prepare('SELECT tier_id FROM deposits WHERE user_id=? AND status="pe
 $st->execute([(int)$u['id']]);
 $pendingTiers = array_map('intval', array_column($st->fetchAll(), 'tier_id'));
 // Get upgrade tiers from the tiers table (those with star ratings - dynamic, not hardcoded)
-$allOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" ORDER BY id')->fetchAll();
+$allOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" AND active = 1 ORDER BY id')->fetchAll();
 ?>
 <!DOCTYPE html>
 
@@ -271,7 +271,7 @@ $allOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" ORDER BY 
                                     </div>
                                     <div>
                                         <p class="font-bold text-gray-800 text-sm"><?php echo $opt['requirement_type'] === 'threshold' ? 'more than' : 'exact'; ?></p>
-                                        <p class="text-xs text-gray-500"><?php echo $opt['requirement_type'] === 'threshold' ? '10' : ''; ?>+</p>
+                                        <p class="text-xs text-gray-500"><?php echo $opt['requirement_type'] === 'threshold' ? (int)$opt['referral_requirement'] . '+' : ''; ?></p>
                                     </div>
                                 </div>
                             </div>

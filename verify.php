@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/mail.php';
+maintenance_gate_public();
 if (current_user()) redirect('/users/dashboard.php');
 $msg = ''; $ok = false;
 // Verify via link

@@ -7,8 +7,8 @@ $u = require_login();
 $pdo = db();
 
 // Upgrade tiers: same source as the Upgrade page (tiers with a star rating).
-$tierOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" ORDER BY id')->fetchAll();
-if (!$tierOpts) $tierOpts = $pdo->query('SELECT * FROM tiers ORDER BY id')->fetchAll();
+$tierOpts = $pdo->query('SELECT * FROM tiers WHERE display_rating != "" AND active = 1 ORDER BY id')->fetchAll();
+if (!$tierOpts) $tierOpts = $pdo->query('SELECT * FROM tiers WHERE active = 1 ORDER BY id')->fetchAll();
 $tierIds = array_map(fn($t) => (int)$t['id'], $tierOpts);
 
 $reqTierId = (int)($_GET['tier'] ?? $_GET['tier_id'] ?? 0);
@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Server-side validation: never trust the browser's IDs.
         $method = $methodId > 0 ? pm_get_active_method($methodId) : null;
         if (!$tier) $err = 'Please select a valid tier.';
+        elseif ((int)($tier['active'] ?? 1) !== 1) $err = 'This tier is not available right now.';
         elseif (!$method) $err = 'Please select an active payment method.';
         elseif ((int)$u['tier_id'] === $tierId) $err = 'You are already on this tier.';
         else {

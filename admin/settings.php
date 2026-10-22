@@ -41,9 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect('/admin/settings.php');
                 }
             }
-            if (in_array($f, ['min_deposit', 'min_withdraw', 'fx_USD', 'fx_NGN', 'fx_GHS', 'referral_reward'], true)) {
+            if (in_array($f, ['min_deposit', 'min_withdraw', 'fx_USD', 'fx_NGN', 'fx_GHS'], true)) {
+                if (!is_numeric($v) || (float)$v <= 0) {
+                    admin_flash('error', "Invalid number for $f: it must be greater than zero.");
+                    redirect('/admin/settings.php');
+                }
+            }
+            if ($f === 'referral_reward') {
                 if (!is_numeric($v) || (float)$v < 0) {
-                    admin_flash('error', "Invalid number for $f.");
+                    admin_flash('error', 'Invalid number for referral_reward: it must be zero or greater.');
                     redirect('/admin/settings.php');
                 }
             }

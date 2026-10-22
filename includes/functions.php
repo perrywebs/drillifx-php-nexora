@@ -194,5 +194,20 @@ function is_valid_email(string $email): bool {
     return (bool)filter_var($email, FILTER_VALIDATE_EMAIL);
 }
 
+// Maintenance mode for public entry pages: while enabled, guests are held on
+// the notice page; admins (and the admin panel, which never calls this) keep
+// working. Logged-in users are already routed by require_login().
+function maintenance_gate_public(): void {
+    try {
+        if (setting('maintenance_mode', '0') !== '1') return;
+        if (!empty($_SESSION['admin_authenticated'])) return;
+        $uri = (string)($_SERVER['REQUEST_URI'] ?? '');
+        $base = base_path();
+        $path = ($base !== '' && strpos($uri, $base) === 0) ? substr($uri, strlen($base)) : $uri;
+        if (strpos($path, '/maintenance.php') === 0) return;
+        redirect('/maintenance.php');
+    } catch (Throwable $e) {}
+}
+
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/seo.php';
